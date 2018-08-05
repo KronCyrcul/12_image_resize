@@ -25,6 +25,7 @@ def get_console_params():
 
 
 def define_request_params(namespace, initial_image_size):
+    print(namespace)
     initial_image_width, initial_image_height = initial_image_size
     if (namespace.width or namespace.height) and namespace.scale:
         print("-h and -w parameters are conflicted with -s")
@@ -38,19 +39,21 @@ def define_request_params(namespace, initial_image_size):
     elif namespace.scale:
         final_image_width = initial_image_width * namespace.scale
         final_image_height = initial_image_height * namespace.scale
-    elif namespace.width:
-        final_image_width = namespace.width
-        final_image_height = (final_image_width
-            / initial_image_width
-            * initial_image_height)
-    elif namespace.height:
-        final_image_height = namespace.height
-        final_image_width = (final_image_height
-            / initial_image_height
-            * initial_image_width)
+    elif namespace.width or namespace.height:
+        if namespace.width is not None:
+            final_image_width = namespace.width
+            final_image_height = (final_image_width /
+                                  initial_image_width *
+                                  initial_image_height)
+        else:
+            final_image_height = namespace.height
+            final_image_width = (final_image_height /
+                                 initial_image_height *
+                                 initial_image_width)
     else:
         print("There is not enough parameters")
         return None
+    print(final_image_width, final_image_height)
     return int(final_image_width), int(final_image_height)
 
 
