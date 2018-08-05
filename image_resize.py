@@ -25,12 +25,8 @@ def get_console_params():
 
 
 def define_request_params(namespace, initial_image_size):
-    print(namespace)
     initial_image_width, initial_image_height = initial_image_size
-    if (namespace.width or namespace.height) and namespace.scale:
-        print("-h and -w parameters are conflicted with -s")
-        return None
-    elif namespace.width and namespace.height:
+    if namespace.width and namespace.height:
         final_image_height = namespace.height
         final_image_width = namespace.width
         if (initial_image_width/initial_image_height !=
@@ -50,10 +46,6 @@ def define_request_params(namespace, initial_image_size):
             final_image_width = (final_image_height /
                                  initial_image_height *
                                  initial_image_width)
-    else:
-        print("There is not enough parameters")
-        return None
-    print(final_image_width, final_image_height)
     return int(final_image_width), int(final_image_height)
 
 
@@ -85,18 +77,25 @@ def save_image(
 if __name__ == "__main__":
     parser = get_console_params()
     namespace = parser.parse_args()
+    if ((namespace.width is not None or
+            namespace.height is not None) and
+            namespace.scale is not None):
+        sys.exit("-h and -w parameters are conflicted with -s")
+    if not (namespace.width is not None or
+            namespace.height is not None or
+            namespace.scale is not None):
+        sys.exit("There is not enough parameters")
     try:
         initial_image_size = get_initial_image_size(namespace.path_to_file)
-    except FileNotFoundError:
-        sys.exit("File not found")
-    initial_image_name, ext = os.path.splitext(
-        str.split(sys.argv[1], "\\")[-1])
-    final_image_size = define_request_params(namespace, initial_image_size)
-    if final_image_size is not None:
+        final_image_size = define_request_params(namespace, initial_image_size)
         final_image = resize_image(
             namespace.path_to_file, namespace.output, final_image_size)
-    else:
-        sys.exit()
+    except FileNotFoundError:
+        sys.exit("File not found")
+    except (ValueError, UnboundLocalError):
+        sys.exit("Wrong value")
+    initial_image_name, ext = os.path.splitext(
+        str.split(sys.argv[1], "\\")[-1])
     save_image(
         final_image, initial_image_name, ext,
         namespace.output, final_image_size)
