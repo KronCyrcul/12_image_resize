@@ -82,7 +82,10 @@ def save_image(
 if __name__ == "__main__":
     parser = get_console_params()
     namespace = parser.parse_args()
-    initial_image_size = get_initial_image_size(namespace.path_to_file)
+    try:
+        initial_image_size = get_initial_image_size(namespace.path_to_file)
+    except FileNotFoundError:
+        sys.exit("File not found")
     initial_image_name, ext = os.path.splitext(
         str.split(sys.argv[1], "\\")[-1])
     final_image_size = define_request_params(namespace, initial_image_size)
