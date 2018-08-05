@@ -24,6 +24,20 @@ def get_console_params():
     return parser
 
 
+def check_params_conflicts(namespace):
+    if ((namespace.width is not None or
+            namespace.height is not None) and
+            namespace.scale is not None):
+        print("-h and -w parameters are conflicted with -s")
+        return True
+    if not (namespace.width is not None or
+            namespace.height is not None or
+            namespace.scale is not None):
+        print("There is not enough parameters")
+        return True
+    return False
+
+
 def define_request_params(namespace, initial_image_size):
     initial_image_width, initial_image_height = initial_image_size
     if namespace.width and namespace.height:
@@ -77,14 +91,8 @@ def save_image(
 if __name__ == "__main__":
     parser = get_console_params()
     namespace = parser.parse_args()
-    if ((namespace.width is not None or
-            namespace.height is not None) and
-            namespace.scale is not None):
-        sys.exit("-h and -w parameters are conflicted with -s")
-    if not (namespace.width is not None or
-            namespace.height is not None or
-            namespace.scale is not None):
-        sys.exit("There is not enough parameters")
+    if check_params_conflicts(namespace) is not False:
+        sys.exit()
     try:
         initial_image_size = get_initial_image_size(namespace.path_to_file)
         final_image_size = define_request_params(namespace, initial_image_size)
