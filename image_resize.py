@@ -6,15 +6,25 @@ import sys
 
 def get_console_params():
     parser = argparse.ArgumentParser()
-    parser.add_argument("path_to_file", type=str,
+    parser.add_argument(
+        "path_to_file",
+        type=str,
         help="path to initial image, require .jpg and .png format")
-    parser.add_argument("-w", "--width", type=int,
+    parser.add_argument(
+        "-w", "--width",
+        type=int,
         help="final image width")
-    parser.add_argument("-he", "--height", type=int,
+    parser.add_argument(
+        "-he", "--height",
+        type=int,
         help="final image height")
-    parser.add_argument("-s", "--scale", type=float,
+    parser.add_argument(
+        "-s", "--scale",
+        type=float,
         help="keep proportion and zoom image")
-    parser.add_argument("-o", "--output", type=str,
+    parser.add_argument(
+        "-o", "--output",
+        type=str,
         default=os.getcwd(), help="path to save final image")
     return parser
 
@@ -22,8 +32,8 @@ def get_console_params():
 def check_params_conflicts(width, height, scale):
     if ((width is not None or height is not None) and
             scale is not None):
-        raise argparse.ArgumentTypeError("-h and -w parameters are"
-            "conflicted with -s")
+        raise argparse.ArgumentTypeError(
+            "-h and -w parameters are conflicted with -s")
     if not (width is not None or height is not None or
             scale is not None):
         raise argparse.ArgumentTypeError("There is not enough parameters")
@@ -71,8 +81,8 @@ def save_image(
     image_name, ext = os.path.splitext(initial_image_name)
     path_to_final_file = os.path.join(
         path_to_save,
-        "{}__{}x{}{}".format(image_name,
-            final_image_width, final_image_height, ext))
+        "{}__{}x{}{}".format(
+            image_name, final_image_width, final_image_height, ext))
     final_image.save(path_to_final_file)
 
 
