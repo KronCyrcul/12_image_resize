@@ -95,11 +95,7 @@ if __name__ == "__main__":
         final_image_size = define_request_params(args, initial_image_size)
         final_image = resize_image(
             args.path_to_file, args.output, final_image_size)
-    except FileNotFoundError:
-        sys.exit("File not found")
-    except ValueError:
-        sys.exit("Wrong value")
-    except argparse.ArgumentTypeError as e:
+    except (FileNotFoundError, ValueError, argparse.ArgumentTypeError) as e:
         sys.exit(e)
     initial_image_name = os.path.basename(args.path_to_file)
     initial_image_width, initial_image_height = initial_image_size
