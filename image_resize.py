@@ -29,30 +29,30 @@ def get_console_params():
     return parser
 
 
-def check_params_conflicts(width, height, scale):
+def check_params_conflicts(parser, width, height, scale):
     if ((width is not None or height is not None) and
             scale is not None):
-        raise argparse.ArgumentTypeError(
+        parser.error(
             "-h and -w parameters are conflicted with -s")
     if not (width is not None or height is not None or
             scale is not None):
-        raise argparse.ArgumentTypeError("There is not enough parameters")
-    if (width == 0 or height == 0 or scale == 0):
-        raise argparse.ArgumentTypeError("0 is not acceptable as a parameter")
-    return False
+        parser.error("There is not enough parameters")
+    if ((width and width) <= 0 or (height and height) == 0 or
+            (scale and scale) == 0):
+        parser.error("Wrong value")
 
 
-def define_request_params(args, initial_image_size):
+def get_final_image_size(width, height, scale, initial_image_size):
     initial_image_width, initial_image_height = initial_image_size
-    if args.width and args.height:
-        final_image_height = args.height
-        final_image_width = args.width
-    elif args.scale:
-        final_image_width = initial_image_width * args.scale
-        final_image_height = initial_image_height * args.scale
-    elif args.width or args.height:
-        if args.width is not None:
-            final_image_width = args.width
+    if width and height:
+        final_image_height = height
+        final_image_width = width
+    elif scale:
+        final_image_width = initial_image_width * scale
+        final_image_height = initial_image_height * scale
+    elif width or height:
+        if width is not None:
+            final_image_width = width
             final_image_height = (final_image_width/initial_image_width
                 * initial_image_height)
         else:
@@ -67,36 +67,45 @@ def get_initial_image(path):
     return initial_image
 
 
-def resize_image(path_to_original, path_to_result, final_image_size):
+def resize_image(initial_image, final_image_size):
     final_image_width, final_image_height = final_image_size
-    initial_image = get_initial_image(path_to_original)
     final_image = initial_image.resize(final_image_size)
     return final_image
 
 
 def save_image(
-        final_image, initial_image_name,
-        path_to_save, final_image_size):
+    final_image,
+    initial_image_name,
+    path_to_save,
+    final_image_size):
     final_image_width, final_image_height = final_image_size
     image_name, ext = os.path.splitext(initial_image_name)
     path_to_final_file = os.path.join(
         path_to_save,
         "{}__{}x{}{}".format(
-            image_name, final_image_width, final_image_height, ext))
+            image_name,
+            final_image_width,
+            final_image_height,
+            ext))
     final_image.save(path_to_final_file)
 
 
 if __name__ == "__main__":
     parser = get_console_params()
     args = parser.parse_args()
+    check_params_conflicts(parser, args.width, args.height, args.scale)
     try:
-        check_params_conflicts(args.width, args.height, args.scale)
-        initial_image_size = get_initial_image(args.path_to_file).size
-        final_image_size = define_request_params(args, initial_image_size)
-        final_image = resize_image(
-            args.path_to_file, args.output, final_image_size)
-    except (FileNotFoundError, ValueError, argparse.ArgumentTypeError) as e:
-        sys.exit(e)
+        initial_image = get_initial_image(args.path_to_file)
+    except FileNotFoundError:
+        sys.exit("File not found")
+    initial_image_size = initial_image.size
+    final_image_size = get_final_image_size(
+        args.width,
+        args.height,
+        args.scale,
+        initial_image_size)
+    final_image = resize_image(
+        initial_image, final_image_size)
     initial_image_name = os.path.basename(args.path_to_file)
     initial_image_width, initial_image_height = initial_image_size
     final_image_width, final_image_height = final_image_size
