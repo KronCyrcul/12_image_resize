@@ -35,8 +35,8 @@ def check_params_conflicts(parser, width, height, scale):
             "-h and -w parameters are conflicted with -s")
     if not (width or height or scale):
         parser.error("There is not enough parameters")
-    if ((width and width <= 0) or (height and height == 0) or
-            (scale and scale == 0)):
+    if ((width and width <= 0) or (height and height <= 0) or
+            (scale and scale <= 0)):
         parser.error("Wrong value")
 
 
