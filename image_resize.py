@@ -30,15 +30,13 @@ def get_console_params():
 
 
 def check_params_conflicts(parser, width, height, scale):
-    if ((width is not None or height is not None) and
-            scale is not None):
+    if ((width or height) and scale):
         parser.error(
             "-h and -w parameters are conflicted with -s")
-    if not (width is not None or height is not None or
-            scale is not None):
+    if not (width or height or scale):
         parser.error("There is not enough parameters")
-    if ((width and width) <= 0 or (height and height) == 0 or
-            (scale and scale) == 0):
+    if ((width and width <= 0) or (height and height == 0) or
+            (scale and scale == 0)):
         parser.error("Wrong value")
 
 
